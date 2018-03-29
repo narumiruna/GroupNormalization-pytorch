@@ -1,14 +1,22 @@
 
 from torch import nn
+from groupnorm import GroupNorm2d
 
 
 class ConvBlock(nn.Module):
-    def __init__(self, in_channels, out_channels, stride, normalization):
+    def __init__(self, in_channels, out_channels, stride, norm=None):
         super(ConvBlock, self).__init__()
-        if normalization:
+        if norm == 'batch':
             self.main = nn.Sequential(
                 nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1),
-                normalization(out_channels),
+                nn.BatchNorm2d(out_channels),
+                nn.ReLU(inplace=True),
+                nn.Dropout2d(),
+            )
+        elif norm == 'group':
+            self.main = nn.Sequential(
+                nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1),
+                GroupNorm2d(out_channels),
                 nn.ReLU(inplace=True),
                 nn.Dropout2d(),
             )
@@ -24,28 +32,28 @@ class ConvBlock(nn.Module):
 
 
 class Net(nn.Module):
-    def __init__(self, normalization):
+    def __init__(self, norm, conv_ch=96):
         super(Net, self).__init__()
         self.main = nn.Sequential(
-            ConvBlock(3, 96, 1, normalization),
-            ConvBlock(96, 96, 1, normalization),
-            ConvBlock(96, 96, 2, normalization),
+            ConvBlock(3, conv_ch, 1, norm),
+            ConvBlock(conv_ch, conv_ch, 1, norm),
+            ConvBlock(conv_ch, conv_ch, 2, norm),
 
-            ConvBlock(96, 192, 1, normalization),
-            ConvBlock(192, 192, 1, normalization),
-            ConvBlock(192, 192, 2, normalization),
+            ConvBlock(conv_ch, conv_ch * 2, 1, norm),
+            ConvBlock(conv_ch * 2, conv_ch * 2, 1, norm),
+            ConvBlock(conv_ch * 2, conv_ch * 2, 2, norm),
 
-            ConvBlock(192, 192, 1, normalization),
-            ConvBlock(192, 192, 1, normalization),
-            ConvBlock(192, 192, 2, normalization),
+            ConvBlock(conv_ch * 2, conv_ch * 2, 1, norm),
+            ConvBlock(conv_ch * 2, conv_ch * 2, 1, norm),
+            ConvBlock(conv_ch * 2, conv_ch * 2, 2, norm),
 
-            ConvBlock(192, 192, 1, normalization),
-            ConvBlock(192, 192, 1, normalization),
-            ConvBlock(192, 192, 2, normalization),
+            ConvBlock(conv_ch * 2, conv_ch * 2, 1, norm),
+            ConvBlock(conv_ch * 2, conv_ch * 2, 1, norm),
+            ConvBlock(conv_ch * 2, conv_ch * 2, 2, norm),
 
-            ConvBlock(192, 192, 1, normalization),
-            ConvBlock(192, 192, 1, normalization),
-            ConvBlock(192, 10, 2, None),
+            ConvBlock(conv_ch * 2, conv_ch * 2, 1, norm),
+            ConvBlock(conv_ch * 2, conv_ch * 2, 1, norm),
+            ConvBlock(conv_ch * 2, 10, 2),
         )
 
     def forward(self, x):
@@ -59,8 +67,10 @@ def test():
     from torch.autograd import Variable
     from groupnorm import GroupNorm2d
     x = Variable(torch.randn(50, 3, 32, 32), volatile=True)
-    net = Net(GroupNorm2d)
-    print(net(x))
+    net = Net(norm='group')
+    print(net)
+    net = Net(norm='batch')
+    print(net)
 
 
 if __name__ == '__main__':

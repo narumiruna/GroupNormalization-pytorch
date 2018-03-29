@@ -35,3 +35,9 @@ class GroupNorm2d(nn.Module):
             output = output * self.weight + self.bias
 
         return output
+
+    def __repr__(self):
+        return '{name}({extra_repr})'.format(name=self.__class__.__name__, extra_repr=self.extra_repr())
+
+    def extra_repr(self):
+        return '{num_features}, num_groups={num_groups}, eps={eps}, affine={affine}.'.format(**self.__dict__)
