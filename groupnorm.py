@@ -4,7 +4,7 @@ from torch.nn import Parameter
 
 
 class GroupNorm2d(nn.Module):
-    def __init__(self, num_features, num_groups, eps=1e-5, affine=True):
+    def __init__(self, num_features, num_groups=16, eps=1e-5, affine=True):
         super(GroupNorm2d, self).__init__()
         self.num_groups = num_groups
         self.eps = eps
