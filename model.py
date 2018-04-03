@@ -60,18 +60,3 @@ class Net(nn.Module):
         out = self.main(x)
         out = out.view(x.size(0), -1)
         return out
-
-
-def test():
-    import torch
-    from torch.autograd import Variable
-    from groupnorm import GroupNorm2d
-    x = Variable(torch.randn(50, 3, 32, 32), volatile=True)
-    net = Net(norm='group')
-    print(net)
-    net = Net(norm='batch')
-    print(net)
-
-
-if __name__ == '__main__':
-    test()
