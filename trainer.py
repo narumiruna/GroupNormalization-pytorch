@@ -1,10 +1,10 @@
 
 from torch.autograd import Variable
 import torch.nn.functional as F
-
+from time import time
 
 class Trainer(object):
-    def __init__(self, model, optimizer, train_loader, val_loader, cuda=False, log_interval=10):
+    def __init__(self, model, optimizer, train_loader, val_loader, cuda=False, log_interval=100):
         self.model = model
         self.optimizer = optimizer
         self.train_loader = train_loader
@@ -17,12 +17,15 @@ class Trainer(object):
 
     def train(self, epochs):
         for epoch in range(epochs):
+            start = time()
             self.train_epoch(epoch)
             val_acc, val_avg_loss = self.validate()
-            print('Validation acc: {:.2f}%, validation loss: {:.6f}.'.format(val_acc * 100, val_avg_loss))
+            print('time: {:.2f}s, validation acc: {:.2f}%, validation loss: {:.6f}.'.format(time() - start, val_acc * 100, val_avg_loss))
 
     def train_epoch(self, epoch):
         for i, (x, y) in enumerate(self.train_loader):
+            self.model.train()
+
             x = Variable(x)
             y = Variable(y)
 
@@ -40,9 +43,11 @@ class Trainer(object):
             if (i + 1) % self.log_interval == 0:
                 print('Train epoch: {},'.format(epoch + 1),
                       'iter: {}/{},'.format(i + 1, self.num_iters_per_epoch),
-                      'train loss: {}.'.format(float(loss.data)))
+                      'train loss: {:.6f}.'.format(float(loss.data)))
 
     def validate(self):
+        self.model.eval()
+
         correct = 0
         loss_list = []
 

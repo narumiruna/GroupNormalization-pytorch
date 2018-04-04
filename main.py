@@ -2,7 +2,7 @@
 import argparse
 from torchvision import datasets, transforms
 from model import Net
-from torch import optim
+from torch import nn, optim
 from trainer import Trainer
 import torch
 from torch.utils import data
@@ -13,10 +13,11 @@ def main():
     parser.add_argument('--root', type=str, default='data')
     parser.add_argument('--workers', type=int, default=0)
     parser.add_argument('--no-cuda', action='store_true')
-    parser.add_argument('--epochs', type=int, default=10)
+    parser.add_argument('--epochs', type=int, default=200)
     parser.add_argument('--batch-size', type=int, default=32)
     parser.add_argument('--norm', type=str, default='group', help='group | batch')
     parser.add_argument('--conv-ch', type=int, default=96)
+    parser.add_argument('--parallel', action='store_true')
 
     parser.add_argument('--lr', type=float, default=1e-3)
     parser.add_argument('--beta1', type=float, default=0.9)
@@ -46,6 +47,10 @@ def main():
                                  shuffle=False)
 
     model = Net(norm=args.norm, conv_ch=96)
+    if args.cuda:
+        if args.parallel:
+            model = nn.DataParallel(model)
+        model.cuda()
 
     optimizer = optim.Adam(model.parameters(),
                            lr=args.lr,

@@ -21,11 +21,7 @@ class ConvBlock(nn.Module):
                 nn.Dropout2d(),
             )
         else:
-            self.main = nn.Sequential(
-                nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1),
-                nn.ReLU(inplace=True),
-                nn.Dropout2d(),
-            )
+            raise ValueError('No such norm.')
 
     def forward(self, x):
         return self.main(x)
@@ -53,7 +49,9 @@ class Net(nn.Module):
 
             ConvBlock(conv_ch * 2, conv_ch * 2, 1, norm),
             ConvBlock(conv_ch * 2, conv_ch * 2, 1, norm),
-            ConvBlock(conv_ch * 2, 10, 2),
+
+            # output
+            nn.Conv2d(conv_ch * 2, 10, kernel_size=3, stride=2, padding=1)
         )
 
     def forward(self, x):
