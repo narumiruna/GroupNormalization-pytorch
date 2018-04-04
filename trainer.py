@@ -4,13 +4,16 @@ import torch.nn.functional as F
 
 
 class Trainer(object):
-    def __init__(self, model, optimizer, train_loader, val_loader, cuda=False):
+    def __init__(self, model, optimizer, train_loader, val_loader, cuda=False, log_interval=10):
         self.model = model
         self.optimizer = optimizer
         self.train_loader = train_loader
         self.val_loader = val_loader
 
         self.cuda = cuda
+        self.log_interval = log_interval
+
+        self.num_iters_per_epoch = len(self.train_loader.dataset) // self.train_loader.batch_size
 
     def train(self, epochs):
         for epoch in range(epochs):
@@ -32,6 +35,11 @@ class Trainer(object):
             self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()
+
+            if (i + 1) % self.log_interval == 0:
+                print('Train epoch: {},'.format(epoch + 1),
+                      'iter: {}/{},'.format(i + 1, self.num_iters_per_epoch),
+                      'train loss: {}.'.format(float(loss.data)))
 
     def validate(self):
         correct = 0
