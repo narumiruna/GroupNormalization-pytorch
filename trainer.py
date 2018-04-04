@@ -1,7 +1,9 @@
-
-from torch.autograd import Variable
-import torch.nn.functional as F
 from time import time
+
+import torch.nn.functional as F
+from torch import optim
+from torch.autograd import Variable
+
 
 class Trainer(object):
     def __init__(self, model, optimizer, train_loader, val_loader, cuda=False, log_interval=100):
@@ -15,8 +17,12 @@ class Trainer(object):
 
         self.num_iters_per_epoch = len(self.train_loader.dataset) // self.train_loader.batch_size
 
+        self.scheduler = optim.lr_scheduler.StepLR(self.optimizer, step_size=50, gamma=0.1)
+
     def train(self, epochs):
         for epoch in range(epochs):
+            self.scheduler.step(epoch)
+
             start = time()
             self.train_epoch(epoch)
             val_acc, val_avg_loss = self.validate()
