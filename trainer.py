@@ -18,7 +18,8 @@ class Trainer(object):
     def train(self, epochs):
         for epoch in range(epochs):
             self.train_epoch(epoch)
-            self.validate()
+            val_acc, val_avg_loss = self.validate()
+            print('Validation acc: {:.2f}%, validation loss: {:.6f}.'.format(val_acc * 100, val_avg_loss))
 
     def train_epoch(self, epoch):
         for i, (x, y) in enumerate(self.train_loader):
@@ -61,6 +62,6 @@ class Trainer(object):
             correct += int(y.data.eq(y_pred).cpu().sum())
 
         val_acc = correct / len(self.val_loader.dataset)
-        avg_loss = sum(loss_list) / len(self.val_loader.dataset)
+        val_avg_loss = sum(loss_list) / len(self.val_loader.dataset)
 
-        return val_acc, avg_loss
+        return val_acc, val_avg_loss
