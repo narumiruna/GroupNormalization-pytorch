@@ -1,7 +1,7 @@
 
 import argparse
 from torchvision import datasets, transforms
-from model import Net
+from models import resnet
 from torch import nn, optim
 from trainer import Trainer
 import torch
@@ -46,7 +46,7 @@ def main():
                                  batch_size=args.batch_size,
                                  shuffle=False)
 
-    model = Net(norm=args.norm, conv_ch=96)
+    model = resnet.resnet_cifar(norm=args.norm)
     if args.cuda:
         if args.parallel:
             model = nn.DataParallel(model)
