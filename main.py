@@ -47,6 +47,7 @@ def main():
                                  shuffle=False)
 
     model = resnet.resnet_cifar(norm=args.norm)
+    print(model)
     if args.cuda:
         if args.parallel:
             model = nn.DataParallel(model)
