@@ -107,10 +107,10 @@ class ResNet(nn.Module):
         return x
 
 
-def resnet_cifar(norm='batch'):
+def resnet_cifar(layers, norm='batch'):
     if norm == 'batch':
-        return ResNet(BasicBlock, [2, 2, 2, 2], num_classes=10)
+        return ResNet(BasicBlock, layers, num_classes=10)
     elif norm == 'group':
-        return ResNet(BasicBlock, [2, 2, 2, 2], num_classes=10, norm=GroupNorm2d)
+        return ResNet(BasicBlock, layers, num_classes=10, norm=GroupNorm2d)
     else:
         raise ValueError('No such norm.')

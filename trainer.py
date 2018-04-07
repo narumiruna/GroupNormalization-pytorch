@@ -17,7 +17,7 @@ class Trainer(object):
 
         self.num_iters_per_epoch = len(self.train_loader.dataset) // self.train_loader.batch_size
 
-        self.scheduler = optim.lr_scheduler.StepLR(self.optimizer, step_size=50, gamma=0.1)
+        self.scheduler = optim.lr_scheduler.StepLR(self.optimizer, step_size=100, gamma=0.1)
 
     def train(self, epochs):
         for epoch in range(epochs):
